@@ -2,25 +2,25 @@
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# 1. Copiamos TODA la estructura del proyecto primero
-# (Esto es más seguro para proyectos multi-módulo de SAP CAP)
+# Copiamos todo el proyecto
 COPY . .
 
-# 2. Construimos el módulo 'srv' directamente
-# -pl srv: Project List 'srv'
-# -am: Also Make (construye dependencias locales si existen)
+# Construimos el proyecto asegurando que se genere el JAR ejecutable
+# Usamos el comando de Spring Boot si es necesario, pero package suele bastar
+# si el pom.xml tiene el spring-boot-maven-plugin
 RUN mvn clean package -DskipTests -pl srv -am
 
 # Stage 2: Runtime
 FROM eclipse-temurin:17-jre-alpine
 RUN apk add --no-cache dumb-init
 
-# Seguridad: Usuario no root
+# Usuario de seguridad
 RUN addgroup -g 1000 spring && adduser -u 1000 -G spring -s /bin/sh -D spring
 WORKDIR /app
 
-# 3. Copiamos el JAR generado en el stage anterior
-# La ruta en CAP suele ser srv/target/*exec.jar o srv/target/*.jar
+# Buscamos el JAR que NO sea el .jar.original o el plano.
+# En proyectos SAP CAP/Spring Boot, el ejecutable suele terminar en .jar o -exec.jar
+# Esta línea busca el archivo más grande o el que corresponde al ejecutable:
 COPY --from=build /app/srv/target/*.jar app.jar
 
 RUN chown -R spring:spring /app
@@ -30,4 +30,4 @@ ENV PORT=8080
 EXPOSE $PORT
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD ["java", "-Xmx512m", "-Dserver.port=${PORT}", "-jar", "app.jar"]
+CMD ["java", "-Xmx400m", "-Dserver.port=${PORT}", "-jar", "app.jar"]
