@@ -18,10 +18,13 @@ RUN apk add --no-cache dumb-init
 RUN addgroup -g 1000 spring && adduser -u 1000 -G spring -s /bin/sh -D spring
 WORKDIR /app
 
-# Buscamos el JAR que NO sea el .jar.original o el plano.
-# En proyectos SAP CAP/Spring Boot, el ejecutable suele terminar en .jar o -exec.jar
-# Esta línea busca el archivo más grande o el que corresponde al ejecutable:
+# Forzamos a copiar el JAR que genera Spring Boot (suele ser el más pesado)
 COPY --from=build /app/srv/target/*.jar app.jar
+
+# En lugar de confiar en el manifiesto interno (que está fallando),
+# le diremos a Java exactamente cuál es la clase principal de SAP CAP / Spring Boot.
+# SUSTITUYE "com.tu.paquete.Application" por la clase que tiene el @SpringBootApplication
+CMD ["java", "-Xmx400m", "-cp", "app.jar:app.jar/lib/*", "org.springframework.boot.loader.JarLauncher"]
 
 RUN chown -R spring:spring /app
 USER spring:spring
