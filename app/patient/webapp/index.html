@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Pacientes</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/387/387561.png">
+
+    <style>
+        html, body { height: 100%; margin: 0; font-family: "72", "72full", Arial, Helvetica, sans-serif; }
+
+        .header-container {
+            background-color: white;
+            height: 140px; /* Mantenemos tus 140px */
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            border-bottom: 1px solid #dcdcdc;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .logo-img {
+            height: 100px; /* Lo subo a 100px para que luzca imponente */
+            width: auto;
+            display: block;
+            z-index: 2;
+            /* Bajamos el logo un poco para evitar el corte superior */
+            margin-top: 10px;
+        }
+
+        .header-title {
+            position: absolute;
+            left: 50%;
+            top: 55%; /* Bajado ligeramente del 50% para equilibrar visualmente con el logo */
+            transform: translate(-50%, -50%);
+            font-size: 2.8rem;
+            color: #354a5f;
+            font-weight: bold;
+            white-space: nowrap;
+            text-align: center;
+        }
+
+        /* Corregido: Restamos 140px para que coincida con la cabecera */
+        html, body, body > div, #container, #container-uiarea {
+            height: calc(100% - 80px);
+        }
+    </style>
+
+    <script
+            id="sap-ui-bootstrap"
+            src="https://sapui5.hana.ondemand.com/1.146.0/resources/sap-ui-core.js"
+            data-sap-ui-theme="sap_horizon"
+            data-sap-ui-resource-roots='{
+            "patient": "./"
+        }'
+            data-sap-ui-on-init="module:sap/ui/core/ComponentSupport"
+            data-sap-ui-compat-version="edge"
+            data-sap-ui-async="true"
+            data-sap-ui-frame-options="trusted"
+    ></script>
+</head>
+<body class="sapUiBody sapUiSizeCompact" id="content">
+
+<div class="header-container">
+    <img
+            src="https://consultapsicoterapia.net/files/2018/04/salud-madrid-psicologos.png"
+            alt="Logo Insalud"
+            class="logo-img"
+    >
+    <span class="header-title">Portal de monitorización centralizado</span>
+</div>
+
+<div
+        data-sap-ui-component
+        data-name="patient"
+        data-id="container"
+        data-settings='{"id" : "patient"}'
+        data-handle-validation="true"
+></div>
+</body>
+</html>

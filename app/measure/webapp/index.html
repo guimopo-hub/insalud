@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Registro de Medida - Salud</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/387/387569.png">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #007bff;
+            --bg-color: #f4f7f6;
+            --text-color: #333;
+            --header-bg: #e3f2fd;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: var(--text-color);
+        }
+
+        .mobile-container {
+            background-color: white;
+            width: 100%;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 700px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #e1e1e1;
+            position: relative;
+        }
+
+        .app-header {
+            background-color: white;
+            padding: 30px 20px 15px 20px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .logo-container {
+            width: 90px;
+            height: 90px;
+            background-color: var(--header-bg);
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 3px solid var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .app-logo { width: 75%; height: auto; object-fit: contain; }
+
+        .patient-info { text-align: center; margin-bottom: 20px; padding: 0 20px; display: none; }
+        .patient-label { font-size: 0.75rem; color: #888; text-transform: uppercase; letter-spacing: 1px; display: block; }
+        .patient-name { font-size: 1.4rem; font-weight: 800; color: var(--primary-color); margin: 0; }
+
+        .app-body { padding: 20px 30px 30px 30px; flex-grow: 1; display: flex; flex-direction: column; border-top: 1px solid #f0f0f0; }
+
+        /* Gestión de Vistas */
+        .step-view { display: none; flex-direction: column; animation: fadeIn 0.4s; }
+        .step-active { display: flex; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .instruction-text { text-align: center; color: #666; margin-bottom: 25px; font-size: 0.9rem; }
+        .input-group { margin-bottom: 25px; }
+        label { display: block; font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #444; }
+
+        input {
+            width: 100%;
+            padding: 18px;
+            font-size: 1.1rem;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            background-color: #fafafa;
+            text-align: center;
+        }
+
+        input:focus { outline: none; border-color: var(--primary-color); background-color: white; box-shadow: 0 0 0 4px rgba(0,123,255,0.1); }
+
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 15px rgba(0,123,255,0.2);
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-primary:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        .status-message { margin-top: 25px; padding: 15px; border-radius: 12px; text-align: center; font-size: 0.9rem; display: none; }
+        .status-success { background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; display: block; }
+        .status-error { background-color: #ffebee; color: #c62828; border: 1px solid #ffcdd2; display: block; }
+
+        .back-link { text-align: center; margin-top: 20px; color: var(--primary-color); font-size: 0.85rem; cursor: pointer; text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+<div class="mobile-container">
+    <header class="app-header">
+        <div class="logo-container">
+            <img src="img/nurse.png" alt="Icono Enfermera" class="app-logo">
+        </div>
+
+        <div id="patientDisplay" class="patient-info">
+            <span class="patient-label">Paciente Seleccionado</span>
+            <h1 id="displayName" class="patient-name">---</h1>
+        </div>
+    </header>
+
+    <main class="app-body">
+
+        <div id="stepIdentification" class="step-view step-active">
+            <p class="instruction-text">Introduzca el identificador del paciente para comenzar.</p>
+            <div class="input-group">
+                <label for="patientIdInput">Identificador del Paciente</label>
+                <input type="text" id="patientIdInput" placeholder="Ej: f47ac10..." required>
+            </div>
+            <button id="btnFindPatient" class="btn-primary">Buscar Paciente</button>
+        </div>
+
+        <div id="stepMeasure" class="step-view">
+            <p class="instruction-text">Registre la medida clínica para sincronizar el historial.</p>
+            <form id="measureForm">
+                <div class="input-group">
+                    <label for="measureInput">Valor de la Medida</label>
+                    <input type="number" id="measureInput" placeholder="0.0" step="0.01" required>
+                </div>
+                <button type="submit" id="submitBtn" class="btn-primary">Enviar Medida</button>
+            </form>
+            <div class="back-link" onclick="location.reload()">Buscar otro paciente</div>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+    </main>
+</div>
+
+<script>
+    $(document).ready(function() {
+        let currentPatientId = "";
+
+        // --- PASO 1: BUSCAR PACIENTE ---
+        $('#btnFindPatient').on('click', function() {
+            const id = $('#patientIdInput').val().trim();
+            if (!id) return;
+
+            const $btn = $(this);
+            $btn.prop('disabled', true).text('Buscando...');
+            $('#statusMessage').hide();
+
+            $.ajax({
+                url: `http://localhost:8181/measure/patient/${id}`,
+                method: "GET",
+                timeout: 0,
+            })
+            .done(function (response) {
+                // Mapear nombre (si vienen null usamos el NIF)
+                const firstName = response.firsts_name || "";
+                const lastName = response.last_name || "";
+                let fullName = (firstName + " " + lastName).trim();
+
+                if(!fullName) fullName = "NIF: " + response.nif;
+
+                // Actualizar UI
+                currentPatientId = id;
+                $('#displayName').text(fullName);
+
+                // Transición de pantallas
+                $('#stepIdentification').removeClass('step-active');
+                $('#patientDisplay').fadeIn();
+                $('#stepMeasure').addClass('step-active');
+            })
+            .fail(function () {
+                showStatus('Paciente no encontrado o error de red.', 'error');
+            })
+            .always(function () {
+                $btn.prop('disabled', false).text('Buscar Paciente');
+            });
+        });
+
+        // --- PASO 2: ENVIAR MEDIDA ---
+        $('#measureForm').on('submit', function(e) {
+            e.preventDefault();
+            const val = $('#measureInput').val();
+            const $btn = $('#submitBtn');
+
+            $btn.prop('disabled', true).text('Enviando...');
+            $('#statusMessage').hide();
+
+            $.ajax({
+                url: "http://localhost:8181/measure/",
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                data: JSON.stringify({
+                    "patientId": currentPatientId,
+                    "measure": parseFloat(val)
+                })
+            })
+            .done(function () {
+                showStatus('¡Éxito! Medida guardada.', 'success');
+                $('#measureInput').val('');
+            })
+            .fail(function () {
+                showStatus('Error al guardar la medida.', 'error');
+            })
+            .always(function () {
+                $btn.prop('disabled', false).text('Enviar Medida');
+            });
+        });
+
+        function showStatus(msg, type) {
+            $('#statusMessage').text(msg).removeClass('status-success status-error').addClass('status-' + type).fadeIn();
+        }
+    });
+</script>
+
+</body>
+</html>

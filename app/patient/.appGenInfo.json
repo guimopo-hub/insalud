@@ -1,0 +1,27 @@
+{
+  "generationParameters": {
+    "generationDate": "Mon Mar 23 2026 20:23:22 GMT+0100 (hora estándar de Europa central)",
+    "generatorPlatform": "Visual Studio Code",
+    "serviceType": "Local CAP",
+    "metadataFilename": "",
+    "serviceUrl": "http://localhost:4004/odata/v4/InsaludService/",
+    "appName": "patient",
+    "appTitle": "Pacientes",
+    "appDescription": "Listado de pacientes",
+    "appNamespace": "",
+    "ui5Theme": "sap_horizon",
+    "ui5Version": "1.146.0",
+    "enableEslint": false,
+    "showMockDataInfo": false,
+    "generatorVersion": "1.20.3",
+    "template": "List Report Page V4",
+    "generatorName": "SAP Fiori Application Generator",
+    "entityRelatedConfig": [
+      {
+        "type": "Main Entity",
+        "value": "Patient"
+      }
+    ],
+    "launchText": "To launch the generated app, start your CAP project:  (```mvn spring-boot:run```) and navigate to the following location in your browser:\n\nhttp://localhost:8080/patient/webapp/index.html"
+  }
+}
